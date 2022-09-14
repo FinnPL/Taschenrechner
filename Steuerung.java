@@ -1,89 +1,88 @@
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 public class Steuerung {
-  private Gui gui;
+  private final Gui gui;
   private String calc="";
-  String one ="";
-  String two="";
-  char operator ='?';
-  float ergebnis =0;
-  
-  
+
+  private final ArrayList<Character> operators = new ArrayList<>();
+  private final ArrayList<Double> numbers = new ArrayList<>() ;
+  private String numberBuilder = "";
+
+
+
   public Steuerung(Gui gui) {
     this.gui = gui;
+    operators.indexOf('x');
   }
-  
+
   public void button(char c){
     switch (c) {
-      case'*': 
-      case'/': 
-      case'+':
-      case'-':
-        if(operator !='?'){
-          showErgebnis();
-        }
-        if(one!=""){
-          operator = c;
+      case '*', '/', '+', '-' -> {
+        if (numbers.size() <= operators.size()) {
+          operators.add(c);
+          numbers.add(Double.parseDouble(numberBuilder));
+          numberBuilder = "";
           showCalc(c);
         }
-        break;
-      case '=':
+      }
+      case '=' -> {
+        numbers.add(Double.parseDouble(numberBuilder));
         showErgebnis();
-        break;
-      case 'r':
+      }
+      case 'r' -> {
         reset();
-        gui.setDisplay("0","0");
-        break;
-      default:
-        if (operator == '?') {
-          one +=c;
-        } else {
-          two +=c; 
-        } // end of if-else
+        gui.setDisplay("0", "0");
+      }
+      default -> {
+        numberBuilder += c;
         showCalc(c);
-    } // end of switch    
-    
-  } 
-  
-  public void showErgebnis(){
-    ergebnis = rechne();
-    reset();
-    gui.setDisplay(new DecimalFormat("0.#").format(ergebnis) ,new DecimalFormat("0.#").format(ergebnis));
-    one = ""+ergebnis;
-    calc = ""+ergebnis; 
+      }
+    }
   }
-  
+
+  public void showErgebnis(){
+    Double ergebnis = rechne();
+    reset();
+    gui.setDisplay(null ,new DecimalFormat("0.#").format(ergebnis));
+  }
+
   public void showCalc(char c){
     calc = calc+c;
-    String zwischneergebnis = "= " +one;
-    if(two!=""){
-      zwischneergebnis = "= " +rechne();
-    }
-    gui.setDisplay(calc,zwischneergebnis);
+    gui.setDisplay(calc, null);
   }
-  
-  public Float rechne(){
-    switch (operator) {
-      case  '+': 
-        ergebnis= Float.parseFloat(one)+Float.parseFloat(two);
-        break;
-      case  '-': 
-        ergebnis= Float.parseFloat(one)-Float.parseFloat(two);
-        break;
-      case  '*': 
-        ergebnis= Float.parseFloat(one)*Float.parseFloat(two);
-        break;
-      case  '/': 
-        ergebnis= Float.parseFloat(one)/Float.parseFloat(two);
-        break;
-      default: 
-        break;
-    } // end of switch
-    return ergebnis;
+
+  public Double rechne(){
+    while (operators.contains('*')) {
+      int index = operators.indexOf('*');
+      operators.remove(index);
+      numbers.set(index+1, numbers.get(index)*numbers.get(index+1));
+      numbers.remove(index);
+    }
+    while (operators.contains('/')) {
+      int index = operators.indexOf('/');
+      operators.remove(index);
+      numbers.set(index+1, numbers.get(index)/numbers.get(index+1));
+      numbers.remove(index);
+    }
+    while (operators.contains('+')) {
+      int index = operators.indexOf('+');
+      operators.remove(index);
+       numbers.set(index+1, numbers.get(index)+numbers.get(index+1));
+      numbers.remove(index);
+    }
+    while (operators.contains('-')) {
+      int index = operators.indexOf('-');
+      operators.remove(index);
+      numbers.set(index+1, numbers.get(index)-numbers.get(index+1));
+      numbers.remove(index);
+    }
+    return numbers.get(0);
   }
   public void reset(){
+    operators.clear();
+    numbers.clear();
     calc = "";
-    one ="";
-    two ="";
-    operator = '?';
+    numberBuilder ="";
+
   }
 }
