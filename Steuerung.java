@@ -52,16 +52,16 @@ public class Steuerung {
   }
 
   public Double rechne(){
-    while (operators.contains('*')) {
-      int index = operators.indexOf('*');
-      operators.remove(index);
-      numbers.set(index+1, numbers.get(index)*numbers.get(index+1));
-      numbers.remove(index);
-    }
     while (operators.contains('/')) {
       int index = operators.indexOf('/');
       operators.remove(index);
       numbers.set(index+1, numbers.get(index)/numbers.get(index+1));
+      numbers.remove(index);
+    }
+    while (operators.contains('*')) {
+      int index = operators.indexOf('*');
+      operators.remove(index);
+      numbers.set(index+1, numbers.get(index)*numbers.get(index+1));
       numbers.remove(index);
     }
     while (operators.contains('+')) {
